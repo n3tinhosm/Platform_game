@@ -15,6 +15,13 @@ public class player : MonoBehaviour
 	private Rigidbody2D rb2D;
 	private Animator anim;
 	private bool facingRight = true;
+	private bool isAlive = true;
+	private bool levelCompleted = false;
+	private bool timeIsOver = false;
+
+	public AudioClip fxWin;
+	public AudioClip fxDie;
+	public AudioClip fxJump;
 
     // Start is called before the first frame update
     void Start()
@@ -31,7 +38,14 @@ public class player : MonoBehaviour
         {
         	//comandos de pulo
         	jumping = true;
+        	if(isAlive && !levelCompleted)
+        		SoundManager.instance.PlayFxPlayer(fxJump);
 
+        }
+        if(((int)GameManager.instance.time <=  0) && !timeIsOver)
+        {	
+        	timeIsOver = true;
+        	PlayerDie();
         }
         PlayAnimations();
 
@@ -39,25 +53,41 @@ public class player : MonoBehaviour
 
     void FixedUpdate()
     {
-    	float move = 0f;
-    	move = Input.GetAxis ("Horizontal");
-    	rb2D.velocity = new Vector2 (move*speed, rb2D.velocity.y); //movimenta o personagem na horizontal (correr)
 
-    	if((move < 0 && facingRight) || (move > 0 && !facingRight))
+    	if(isAlive && !levelCompleted)
     	{
-    		Flip();
-    	}
-    	if(jumping)
-    	{
-    		rb2D.AddForce(new Vector2(0f, jumpForce)); // faz o personagem pular
-    		jumping = false; //seta o valor da variavel para false afim de que sempre faça a verificação
+	    	float move = Input.GetAxis("Horizontal");
+	    	rb2D.velocity = new Vector2 (move*speed, rb2D.velocity.y); //movimenta o personagem na horizontal (correr)
 
-    	}
+
+	    	if((move < 0 && facingRight) || (move > 0 && !facingRight))
+	    	{
+	    		Flip();
+	    	}
+	    	if(jumping)
+	    	{
+	    		rb2D.AddForce(new Vector2(0f, jumpForce)); // faz o personagem pular
+	    		jumping = false; //seta o valor da variavel para false afim de que sempre faça a verificação
+
+	    	}
+	    }
+	    else
+	    {
+	    	rb2D.velocity = new Vector2 (0, rb2D.velocity.y);
+	    }
     }
 
     void PlayAnimations() //faz a animação da ação do personagem
     {
-    	if(grounded && rb2D.velocity.x != 0)
+    	if(levelCompleted)
+    	{
+    		anim.Play("celebration");
+    	}
+    	else if(!isAlive)
+    	{
+    		anim.Play("die");
+    	}
+    	else if(grounded && rb2D.velocity.x != 0)
     	{
     		anim.Play("run");
     	}
@@ -69,10 +99,56 @@ public class player : MonoBehaviour
     	{
     		anim.Play("jump");
     	}
+
     }
     void Flip()
     {
     	facingRight = !facingRight; //testa se esta olhando para o lado escolhido
     	transform.localScale = new Vector3 (-transform.localScale.x, transform.localScale.y, transform.localScale.z);
     }
+
+    //faz a colisão entre player e monstro ter uma ação
+    void OnCollisionEnter2D (Collision2D other)
+    {
+    	//player morre
+    	if(other.gameObject.CompareTag("Enemy"))
+    	{
+    		PlayerDie();
+    	}
+
+    }
+
+    //mata o player
+    void PlayerDie()
+    {	
+    	isAlive = false;
+    	Physics2D.IgnoreLayerCollision(9,10);
+    	SoundManager.instance.PlayFxPlayer(fxDie);
+
+
+    }
+
+    //quando encostar na placa, o jogodor vence a fase atual
+  	void OnTriggerEnter2D (Collider2D other)
+  	{
+  		if(other.CompareTag("Exit"))
+  		{
+  			levelCompleted = true;
+  			SoundManager.instance.PlayFxPlayer(fxWin);
+  		}
+  	}
+  	//funçao que é executada por ultimo
+  	//para os casos que sejam de derrota o player, morte ou perder por tempo
+  	void DieAnimationFinished()
+  	{
+  		if(timeIsOver)
+  			GameManager.instance.SetOverlay(GameManager.GameStatus.LOSE);
+  		else
+  			GameManager.instance.SetOverlay(GameManager.GameStatus.DIE);
+  		
+  	}
+  	void celebrateAnimationFinished()
+  	{
+  		GameManager.instance.SetOverlay(GameManager.GameStatus.WIN);
+  	}
 }

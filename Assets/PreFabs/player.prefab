@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 417998157713881367}
   - component: {fileID: 417998157713881366}
   - component: {fileID: 417998157713881360}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -160,6 +160,9 @@ MonoBehaviour:
     m_Bits: 256
   radiusCheck: 0.2
   grounded: 0
+  fxWin: {fileID: 8300000, guid: bc7a34b85720ca243bc41c808b158d3c, type: 3}
+  fxDie: {fileID: 8300000, guid: 9a316b1f06b796b4aae8f9dab16b1466, type: 3}
+  fxJump: {fileID: 8300000, guid: 1997b1ffdb53af64fb2b96674c27289b, type: 3}
 --- !u!1 &417998157928053101
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,7 +187,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 417998157928053101}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.86, z: 0}
+  m_LocalPosition: {x: 0.02, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 417998157713881365}
